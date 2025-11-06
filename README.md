@@ -160,11 +160,6 @@ Takes multiple profiles and compares coverage recommendations.
 uvicorn app.main:app --reload
 ```
 
-### Run tests (if added)
-```bash
-pytest -v
-```
-
 ---
 
 ## 📜 License
