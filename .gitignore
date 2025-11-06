@@ -1,0 +1,76 @@
+# =============================
+# Python / Virtual Environment
+# =============================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pdb
+*.egg-info/
+*.eggs/
+*.manifest
+*.spec
+dist/
+build/
+.cache/
+.pytest_cache/
+.env
+.venv/
+venv/
+ENV/
+env.bak/
+.idea/
+.vscode/
+
+# =============================
+# FastAPI / Streamlit App
+# =============================
+# Local SQLite / JSON data
+*.db
+*.sqlite3
+*.json
+*.csv
+instance/
+uploads/
+logs/
+
+# Compiled bytecode and local cache
+*.log
+*.bak
+*.swp
+
+# Streamlit session state
+.streamlit/secrets.toml
+.streamlit/config.toml
+
+# =============================
+# Dependency & Package Managers
+# =============================
+# UV / Poetry / Pipenv
+uv.lock
+poetry.lock
+Pipfile
+Pipfile.lock
+
+# =============================
+# OS-specific Files
+# =============================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =============================
+# IDE / Editor Configs
+# =============================
+.vscode/
+.idea/
+*.iml
+
+# =============================
+# Miscellaneous
+# =============================
+# Temporary / test folders
+tmp/
+temp/
+tests/__pycache__/
