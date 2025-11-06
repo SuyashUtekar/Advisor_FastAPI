@@ -1,5 +1,20 @@
-streamlit>=1.32,<2.0
-agno>=1.1.7
-firecrawl-py>=1.9.0
-e2b-code-interpreter>=1.0.3
-openai>=1.30.0
+# Core Frameworks
+fastapi==0.121.0
+streamlit==1.51.0
+
+# Google Gemini
+google-generativeai==0.8.5
+
+# Utility & Config Management
+python-dotenv==1.2.1
+dotenv==0.9.9
+
+# AI / Sandbox Integrations
+e2b-code-interpreter==2.3.0
+firecrawl-py==4.6.0
+
+# Validation / Data Models
+pydantic==2.12.4
+
+# Server Runner (FastAPI)
+uvicorn[standard]==0.30.6

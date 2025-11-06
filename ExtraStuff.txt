@@ -1,0 +1,171 @@
+We’ll extend your existing AI_LifeInsuranceAdvisor_v2 app by adding two new routes:
+
+/advisor/history → fetch or simulate user advice history
+
+/advisor/compare → compare two or more insurance profiles
+
+Everything will stay modular, following the same controller–router structure.
+
+
+1) app/controllers/history_controller.py
+
+# app/controllers/history_controller.py
+from app.core.utils import get_utc_timestamp
+
+# Simulated in-memory store for demo purposes
+_ADVICE_HISTORY = []
+
+def add_to_history(profile: dict, result: dict):
+    """Store a client profile and Gemini result in memory."""
+    record = {
+        "profile": profile,
+        "result": result,
+        "timestamp": get_utc_timestamp(),
+    }
+    _ADVICE_HISTORY.append(record)
+
+def get_history():
+    """Return all stored advice sessions."""
+    return {
+        "count": len(_ADVICE_HISTORY),
+        "records": _ADVICE_HISTORY,
+    }
+
+
+2) app/controllers/compare_controller.py
+
+# app/controllers/compare_controller.py
+from app.controllers.advisor_controller import get_advice
+
+def compare_profiles(profiles: list):
+    """Compare multiple profiles' coverage results."""
+    results = []
+    for p in profiles:
+        result = get_advice(p)
+        results.append({"profile": p, "recommendation": result})
+    
+    # Find min/max coverage for summary
+    min_cov = min(r["recommendation"]["coverage_amount"] for r in results)
+    max_cov = max(r["recommendation"]["coverage_amount"] for r in results)
+
+    return {
+        "summary": {
+            "profiles_compared": len(results),
+            "min_coverage": min_cov,
+            "max_coverage": max_cov,
+        },
+        "comparisons": results,
+    }
+
+
+
+3) app/routers/advisor_router.py
+
+# app/routers/advisor_router.py
+from fastapi import APIRouter
+from typing import List
+from app.models.schemas import ClientProfile
+from app.controllers.advisor_controller import get_advice
+from app.controllers.history_controller import add_to_history, get_history
+from app.controllers.compare_controller import compare_profiles
+from app.core.utils import get_utc_timestamp
+
+router = APIRouter(prefix="/advisor", tags=["Advisor"])
+
+@router.get("/health")
+def health():
+    return {"status": "ok", "timestamp": get_utc_timestamp()}
+
+
+@router.post("/advise")
+def advise(profile: ClientProfile):
+    result = get_advice(profile.dict())
+    add_to_history(profile.dict(), result)
+    return result
+
+
+@router.get("/history")
+def history():
+    """Return previously generated advice sessions."""
+    return get_history()
+
+
+@router.post("/compare")
+def compare(profiles: List[ClientProfile]):
+    """Compare multiple client profiles."""
+    return compare_profiles([p.dict() for p in profiles])
+
+
+4) No changes needed in:
+
+main.py
+advisor_controller.py
+schemas.py
+
+Your app will automatically pick up the new routes.
+
+
+You’ll now see:
+
+POST /advisor/advise → generate coverage
+GET /advisor/history → show stored advice
+POST /advisor/compare → compare two or more profiles
+GET /advisor/health → status check
+
+
+Example Usage
+
+1) advise
+
+POST /advisor/advise
+{
+  "age": 35,
+  "annual_income": 85000,
+  "dependents": 2,
+  "location": "United States",
+  "total_debt": 200000,
+  "available_savings": 50000,
+  "existing_life_insurance": 100000,
+  "income_replacement_years": 10,
+  "currency": "USD"
+}
+
+2) History
+
+GET /advisor/history
+
+3) Compare
+
+POST /advisor/compare
+[
+  {
+    "age": 35,
+    "annual_income": 85000,
+    "dependents": 2,
+    "location": "United States",
+    "total_debt": 200000,
+    "available_savings": 50000,
+    "existing_life_insurance": 100000,
+    "income_replacement_years": 10,
+    "currency": "USD"
+  },
+  {
+    "age": 45,
+    "annual_income": 95000,
+    "dependents": 3,
+    "location": "United States",
+    "total_debt": 250000,
+    "available_savings": 75000,
+    "existing_life_insurance": 80000,
+    "income_replacement_years": 15,
+    "currency": "USD"
+  }
+]
+
+
+4) Status check
+
+GET /advisor/health
+
+
+→ returns structured comparison JSON (min/max coverage, individual breakdowns).
